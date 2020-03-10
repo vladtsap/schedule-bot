@@ -37,11 +37,13 @@ def create_inline_keyboard(day):
 		btns.append(this_button)
 	inline_keyboard.row(*btns)
 
+	inline_keyboard.add(InlineKeyboardButton('♻️ Змінити тиждень', callback_data='refresh'))
+
 	return inline_keyboard
 
 
 def generate_schedule(day, top):  # 0, True
-	schedule = '📋 '+ bold('Розклад для ФЛО - 41') + '\n🔸 Поточний по '
+	schedule = '📋 ' + bold('Розклад для ФЛО-41') + '\n🔸 Поточний по '
 
 	if int((datetime.date.today() - datetime.date(2020, 3, 2)).days / 7) % 2 == 0:
 		schedule += 'чисельнику\n🔹 Розклад для '
@@ -49,7 +51,7 @@ def generate_schedule(day, top):  # 0, True
 		schedule += 'знаменнику\n🔹 Розклад для '
 
 	if top_week:
-		schedule += 'чисельника\n'
+		schedule += 'чисельника\n\n'
 	else:
 		schedule += 'знаменника\n\n'
 
@@ -80,6 +82,16 @@ def set_week():
 		top_week = True
 	else:
 		top_week = False
+
+
+def swap_week():
+	"""Змінює тиждень на інший по чисельнику/знаменику"""
+	global top_week  # True — чисельник, False — знаменник
+
+	if top_week:
+		top_week = False
+	else:
+		top_week = True
 
 
 def get_day():
@@ -141,6 +153,15 @@ async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
 	await bot.edit_message_text(text=generate_schedule(4, top_week), chat_id=query.from_user.id,
 								message_id=query.message.message_id, parse_mode=PM.MARKDOWN,
 								reply_markup=create_inline_keyboard(4))
+
+
+@dp.callback_query_handler(text='refresh')
+async def refresh_callback_handler(query: types.CallbackQuery):
+	await query.answer('😉')
+	swap_week()
+	await bot.edit_message_text(text=generate_schedule(get_day(), top_week), chat_id=query.from_user.id,
+								message_id=query.message.message_id, parse_mode=PM.MARKDOWN,
+								reply_markup=create_inline_keyboard(get_day()))
 
 
 async def check_admin(message):
