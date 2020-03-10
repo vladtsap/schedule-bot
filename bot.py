@@ -8,18 +8,15 @@ from aiogram.types.reply_keyboard import ReplyKeyboardRemove, ReplyKeyboardMarku
 from aiogram.utils.markdown import text, bold, italic, code, pre  # markdown utils
 from aiogram.types import ParseMode as PM  # to send text in markdown
 
-from lessons import lessons_top, lessons_down
+from dict import lessons_top, lessons_down, lsn_emoji, lsn_time
 
 # Initialize bot and dispatcher
 bot = Bot(token='***REMOVED***')
 dp = Dispatcher(bot, storage=MemoryStorage())
 
 # Configure logging
-# logging.basicConfig(format=u'%(filename)+13s [ LINE:%(lineno)-4s] %(levelname)-8s [%(asctime)s] %(message)s',
-# 					level=logging.DEBUG, filename="schedule.log")
-
 logging.basicConfig(format=u'%(filename)+13s [ LINE:%(lineno)-4s] %(levelname)-8s [%(asctime)s] %(message)s',
-					level=logging.INFO)
+					level=logging.DEBUG, filename="schedule.log")
 
 dp.middleware.setup(LoggingMiddleware())
 
@@ -44,42 +41,50 @@ def create_inline_keyboard(day):
 
 
 def generate_schedule(day, top):  # 0, True
-	schedule = ''
+	schedule = '📋 '+ bold('Розклад для ФЛО - 41') + '\n🔸 Поточний по '
+
+	if int((datetime.date.today() - datetime.date(2020, 3, 2)).days / 7) % 2 == 0:
+		schedule += 'чисельнику\n🔹 Розклад для '
+	else:
+		schedule += 'знаменнику\n🔹 Розклад для '
+
+	if top_week:
+		schedule += 'чисельника\n'
+	else:
+		schedule += 'знаменника\n\n'
+
 	was = False
 	if top:
 		lessons = lessons_top
 	else:
 		lessons = lessons_down
 
-	for elem in lessons[day]:
-		if not len(elem) == 0:
+	for i in range(8):
+		if not len(lessons[day][i]) == 0:
 			if was:
-				schedule += '➖➖➖➖➖➖➖➖➖➖\n'
+				schedule += '\n➖➖➖➖➖➖➖➖➖➖\n'
 			else:
 				was = True
-			schedule += elem['name'] + '\n' + elem['teacher'] + '\n'
-			schedule += elem['type'] + '\n' + elem['room'] + '\n'
+			schedule += lsn_emoji[i] + " " + bold(lessons[day][i]['name']) + '\n🎓 ' + lessons[day][i]['teacher']
+			schedule += '\n📍 ' + lessons[day][i]['room'] + ', ' + lessons[day][i]['type'] + '\n🕓  ' + lsn_time[i]
 
 	return schedule
 
 
-def set_week():  # TODO РОЗКОМЕНТУВАТИ
+def set_week():
 	"""Повертає чи зараз тиждень по чисельнику"""
 	global top_week  # True — чисельник, False — знаменник
-	# start_week = datetime.date(2020, 3, 2)  # тиждень числельника
-	# current_week = datetime.date.today()
-	# if int((current_week - start_week).days / 7) % 2 == 0:
-	# 	top_week = True
-	# else:
-	# 	top_week = False
-
-	top_week = True
+	start_week = datetime.date(2020, 3, 2)  # тиждень числельника
+	current_week = datetime.date.today()
+	if int((current_week - start_week).days / 7) % 2 == 0:
+		top_week = True
+	else:
+		top_week = False
 
 
-def get_day():  # TODO РОЗКОМЕНТУВАТИ
+def get_day():
 	"""Повертає день тижня -1"""
-	# return datetime.datetime.today().weekday()
-	return 0
+	return datetime.datetime.today().weekday()
 
 
 @dp.message_handler(commands=['start'])
@@ -102,35 +107,40 @@ async def schedule_function(message: types.Message):
 async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
 	await query.answer('😉')
 	await bot.edit_message_text(text=generate_schedule(0, top_week), chat_id=query.from_user.id,
-								message_id=query.message.message_id, reply_markup=create_inline_keyboard(0))
+								message_id=query.message.message_id, parse_mode=PM.MARKDOWN,
+								reply_markup=create_inline_keyboard(0))
 
 
 @dp.callback_query_handler(text='tuesday')
 async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
 	await query.answer('😉')
 	await bot.edit_message_text(text=generate_schedule(1, top_week), chat_id=query.from_user.id,
-								message_id=query.message.message_id, reply_markup=create_inline_keyboard(1))
+								message_id=query.message.message_id, parse_mode=PM.MARKDOWN,
+								reply_markup=create_inline_keyboard(1))
 
 
 @dp.callback_query_handler(text='wednesday')
 async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
 	await query.answer('😉')
 	await bot.edit_message_text(text=generate_schedule(2, top_week), chat_id=query.from_user.id,
-								message_id=query.message.message_id, reply_markup=create_inline_keyboard(2))
+								message_id=query.message.message_id, parse_mode=PM.MARKDOWN,
+								reply_markup=create_inline_keyboard(2))
 
 
 @dp.callback_query_handler(text='thursday')
 async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
 	await query.answer('😉')
 	await bot.edit_message_text(text=generate_schedule(3, top_week), chat_id=query.from_user.id,
-								message_id=query.message.message_id, reply_markup=create_inline_keyboard(3))
+								message_id=query.message.message_id, parse_mode=PM.MARKDOWN,
+								reply_markup=create_inline_keyboard(3))
 
 
 @dp.callback_query_handler(text='friday')
 async def inline_kb_answer_callback_handler(query: types.CallbackQuery):
 	await query.answer('😉')
 	await bot.edit_message_text(text=generate_schedule(4, top_week), chat_id=query.from_user.id,
-								message_id=query.message.message_id, reply_markup=create_inline_keyboard(4))
+								message_id=query.message.message_id, parse_mode=PM.MARKDOWN,
+								reply_markup=create_inline_keyboard(4))
 
 
 async def check_admin(message):
