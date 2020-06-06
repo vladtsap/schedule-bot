@@ -96,7 +96,11 @@ def swap_week():
 
 def get_day():
 	"""Повертає день тижня -1"""
-	return datetime.datetime.today().weekday()
+	day = datetime.datetime.today().weekday()
+	if day in (5, 6):
+		return 0
+	else:
+		return day
 
 
 @dp.message_handler(commands=['start'])
