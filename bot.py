@@ -113,7 +113,7 @@ async def start_function(message: types.Message):
 
 @dp.message_handler(text='🎓 Розклад занять')
 async def schedule_function(message: types.Message):
-	"""Опис"""
+	"""Надсилає повідомлення з розкладом"""
 	set_week()
 	await bot.send_message(message.from_user.id, generate_schedule(get_day(), top_week), parse_mode=PM.MARKDOWN,
 						   reply_markup=create_inline_keyboard(get_day()))
