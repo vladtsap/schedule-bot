@@ -11,7 +11,7 @@ from aiogram.types import ParseMode as PM  # to send text in markdown
 from dict import lessons_top, lessons_down, lsn_emoji, lsn_time
 
 # Initialize bot and dispatcher
-bot = Bot(token='***REMOVED***')
+bot = Bot(token='YOUR_TELEGRAM_BOT_TOKEN')
 dp = Dispatcher(bot, storage=MemoryStorage())
 
 # Configure logging
@@ -20,7 +20,7 @@ logging.basicConfig(format=u'%(filename)+13s [ LINE:%(lineno)-4s] %(levelname)-8
 
 dp.middleware.setup(LoggingMiddleware())
 
-ADMIN_ID = [***REMOVED***]
+ADMIN_ID = []
 
 
 def create_inline_keyboard(day):
